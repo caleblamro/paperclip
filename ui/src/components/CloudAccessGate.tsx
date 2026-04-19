@@ -105,7 +105,8 @@ export function CloudAccessGate() {
     isAuthenticatedMode &&
     sessionQuery.data &&
     !boardAccessQuery.data?.isInstanceAdmin &&
-    (boardAccessQuery.data?.companyIds.length ?? 0) === 0
+    (boardAccessQuery.data?.companyIds.length ?? 0) === 0 &&
+    !(healthQuery.data as Record<string, unknown>)?.saasMode
   ) {
     return <NoBoardAccessPage />;
   }

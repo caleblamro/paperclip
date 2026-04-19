@@ -111,6 +111,7 @@ export function healthRoutes(
         deploymentMode: opts.deploymentMode,
         bootstrapStatus,
         bootstrapInviteActive,
+        saasMode: Boolean(process.env.STRIPE_SECRET_KEY),
       });
       return;
     }
