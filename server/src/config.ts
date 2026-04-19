@@ -89,6 +89,7 @@ export interface Config {
   stripeSecretKey: string | undefined;
   stripeWebhookSecret: string | undefined;
   stripePriceId: string | undefined;
+  conductorSaasMode: boolean;
 }
 
 function detectTailnetBindHost(): string | undefined {
@@ -337,5 +338,6 @@ export function loadConfig(): Config {
     stripeSecretKey: process.env.STRIPE_SECRET_KEY?.trim() || undefined,
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET?.trim() || undefined,
     stripePriceId: process.env.STRIPE_PRICE_ID?.trim() || undefined,
+    conductorSaasMode: process.env.CONDUCTOR_SAAS_MODE === "true",
   };
 }

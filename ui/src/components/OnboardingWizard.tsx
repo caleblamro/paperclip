@@ -5,8 +5,7 @@ import { useLocation, useNavigate, useParams } from "@/lib/router";
 import { useDialog } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
 import { companiesApi } from "../api/companies";
-import { billingApi } from "../api/billing";
-import { SubscriptionGate } from "./SubscriptionGate";
+import { secretsApi } from "../api/secrets";
 import { goalsApi } from "../api/goals";
 import { agentsApi } from "../api/agents";
 import { issuesApi } from "../api/issues";
@@ -103,20 +102,12 @@ export function OnboardingWizard() {
   const [modelOpen, setModelOpen] = useState(false);
   const [modelSearch, setModelSearch] = useState("");
 
-  // Billing subscription check
-  const { data: billingStatus } = useQuery({
-    queryKey: ["billing", "status"],
-    queryFn: () => billingApi.getStatus(),
-    retry: false,
-    staleTime: 30_000,
-  });
-  const needsSubscription = billingStatus !== undefined && !billingStatus.active;
-
   // Step 1
   const [companyName, setCompanyName] = useState("");
   const [companyGoal, setCompanyGoal] = useState("");
 
   // Step 2
+  const [anthropicApiKey, setAnthropicApiKey] = useState("");
   const [agentName, setAgentName] = useState("CEO");
   const [adapterType, setAdapterType] = useState<AdapterType>("claude_local");
   const [model, setModel] = useState("");
@@ -477,6 +468,19 @@ export function OnboardingWizard() {
         runtimeConfig: buildNewAgentRuntimeConfig()
       });
       setCreatedAgentId(agent.id);
+
+      if (anthropicApiKey.trim()) {
+        try {
+          await secretsApi.create(createdCompanyId, {
+            name: "ANTHROPIC_API_KEY",
+            value: anthropicApiKey.trim(),
+            description: "Anthropic API key for Claude agents",
+          });
+        } catch {
+          // Non-fatal — user can add it later in settings
+        }
+      }
+
       queryClient.invalidateQueries({
         queryKey: queryKeys.agents.list(createdCompanyId)
       });
@@ -675,10 +679,7 @@ export function OnboardingWizard() {
               </div>
 
               {/* Step content */}
-              {step === 1 && needsSubscription && (
-                <SubscriptionGate onError={setError} />
-              )}
-              {step === 1 && !needsSubscription && (
+              {step === 1 && (
                 <div className="space-y-5">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="bg-muted/50 p-2">
@@ -753,7 +754,6 @@ export function OnboardingWizard() {
                       placeholder="CEO"
                       value={agentName}
                       onChange={(e) => setAgentName(e.target.value)}
-                      autoFocus
                     />
                   </div>
 
@@ -857,6 +857,28 @@ export function OnboardingWizard() {
                       </div>
                     )}
                   </div>
+
+                  {/* Anthropic API key */}
+                  {adapterType === "claude_local" && (
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">
+                        Anthropic API Key
+                      </label>
+                      <input
+                        className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50 font-mono"
+                        placeholder="sk-ant-api03-..."
+                        value={anthropicApiKey}
+                        onChange={(e) => setAnthropicApiKey(e.target.value)}
+                        type="password"
+                      />
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        Required for Claude agents. Get one at{" "}
+                        <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+                          console.anthropic.com
+                        </a>
+                      </p>
+                    </div>
+                  )}
 
                   {/* Conditional adapter fields */}
                   {isLocalAdapter && (
@@ -1217,7 +1239,7 @@ export function OnboardingWizard() {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {step === 1 && !needsSubscription && (
+                  {step === 1 && (
                     <Button
                       size="sm"
                       disabled={!companyName.trim() || loading}

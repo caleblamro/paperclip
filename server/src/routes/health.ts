@@ -68,7 +68,7 @@ export function healthRoutes(
         .from(instanceUserRoles)
         .where(sql`${instanceUserRoles.role} = 'instance_admin'`)
         .then((rows) => Number(rows[0]?.count ?? 0));
-      bootstrapStatus = (roleCount > 0 || Boolean(process.env.STRIPE_SECRET_KEY)) ? "ready" : "bootstrap_pending";
+      bootstrapStatus = (roleCount > 0 || process.env.CONDUCTOR_SAAS_MODE === "true") ? "ready" : "bootstrap_pending";
 
       if (bootstrapStatus === "bootstrap_pending") {
         const now = new Date();
@@ -111,7 +111,7 @@ export function healthRoutes(
         deploymentMode: opts.deploymentMode,
         bootstrapStatus,
         bootstrapInviteActive,
-        saasMode: Boolean(process.env.STRIPE_SECRET_KEY),
+        saasMode: process.env.CONDUCTOR_SAAS_MODE === "true",
       });
       return;
     }

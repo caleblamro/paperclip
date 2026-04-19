@@ -12,8 +12,7 @@ import {
   updateCompanyBrandingSchema,
   updateCompanySchema,
 } from "@paperclipai/shared";
-import { badRequest, forbidden, unauthorized } from "../errors.js";
-import { billingService } from "../services/billing.js";
+import { badRequest, forbidden } from "../errors.js";
 import { validate } from "../middleware/validate.js";
 import {
   accessService,
@@ -267,12 +266,7 @@ export function companyRoutes(db: Db, storage?: StorageService) {
 
   router.post("/", validate(createCompanySchema), async (req, res) => {
     assertBoard(req);
-    if (process.env.STRIPE_SECRET_KEY) {
-      const billing = billingService(db, process.env.STRIPE_SECRET_KEY);
-      if (!(await billing.hasActiveSubscription(req.actor.userId ?? ""))) {
-        throw forbidden("Active subscription required to create an organization");
-      }
-    } else if (!(req.actor.source === "local_implicit" || req.actor.isInstanceAdmin)) {
+    if (!(process.env.CONDUCTOR_SAAS_MODE === "true" || req.actor.source === "local_implicit" || req.actor.isInstanceAdmin)) {
       throw forbidden("Instance admin required");
     }
     const company = await svc.create(req.body);

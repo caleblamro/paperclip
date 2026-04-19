@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: conductor
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-conductor}
+      POSTGRES_DB: conductor
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U conductor -d conductor"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  server:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    expose:
+      - 3100
+    environment:
+      HOST: "0.0.0.0"
+      DATABASE_URL: postgres://conductor:${POSTGRES_PASSWORD:-conductor}@db:5432/conductor
+      PORT: "3100"
+      SERVE_UI: "true"
+      PAPERCLIP_HOME: "/conductor"
+      PAPERCLIP_DEPLOYMENT_MODE: "authenticated"
+      PAPERCLIP_DEPLOYMENT_EXPOSURE: "private"
+      PAPERCLIP_PUBLIC_URL: "${CONDUCTOR_PUBLIC_URL}"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}"
+      STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY:-}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET:-}"
+      STRIPE_PRICE_ID: "${STRIPE_PRICE_ID:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      CONDUCTOR_SAAS_MODE: "true"
+    volumes:
+      - conductor-data:/conductor
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+      - dokploy-network
+
+volumes:
+  pgdata:
+  conductor-data:
+
+networks:
+  internal:
+  dokploy-network:
+    external: true

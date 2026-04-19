@@ -17,8 +17,10 @@ import {
   issues,
   projects,
   projectWorkspaces,
+  companyMemberships,
 } from "@paperclipai/db";
-import { conflict, HttpError, notFound } from "../errors.js";
+import { conflict, forbidden, HttpError, notFound } from "../errors.js";
+import { billingService } from "./billing.js";
 import { logger } from "../middleware/logger.js";
 import { publishLiveEvent } from "./live-events.js";
 import { getRunLogStore, type RunLogHandle } from "./run-log-store.js";
@@ -4453,6 +4455,23 @@ export function heartbeatService(db: Db) {
 
     const agent = await getAgent(agentId);
     if (!agent) throw notFound("Agent not found");
+
+    if (process.env.CONDUCTOR_SAAS_MODE === "true" && process.env.STRIPE_SECRET_KEY) {
+      const billing = billingService(db, process.env.STRIPE_SECRET_KEY);
+      const ownerRow = await db
+        .select({ principalId: companyMemberships.principalId })
+        .from(companyMemberships)
+        .where(and(
+          eq(companyMemberships.companyId, agent.companyId),
+          eq(companyMemberships.membershipRole, "owner"),
+          eq(companyMemberships.principalType, "user"),
+        ))
+        .then((rows) => rows[0] ?? null);
+      if (ownerRow && !(await billing.hasActiveSubscription(ownerRow.principalId))) {
+        throw forbidden("Active subscription required to run agents. Subscribe at your dashboard.");
+      }
+    }
+
     const explicitResumeSession = await resolveExplicitResumeSessionOverride(agent, payload, taskKey);
     if (explicitResumeSession) {
       enrichedContextSnapshot.resumeFromRunId = explicitResumeSession.resumeFromRunId;
