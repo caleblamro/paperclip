@@ -11,8 +11,13 @@ import {
   Boxes,
   Repeat,
   Settings,
+  Zap,
+  CreditCard,
 } from "lucide-react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { billingApi } from "../api/billing";
+import { healthApi } from "../api/health";
 import { SidebarSection } from "./SidebarSection";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { SidebarProjects } from "./SidebarProjects";
@@ -25,6 +30,80 @@ import { useInboxBadge } from "../hooks/useInboxBadge";
 import { Button } from "@/components/ui/button";
 import { PluginSlotOutlet } from "@/plugins/slots";
 import { SidebarCompanyMenu } from "./SidebarCompanyMenu";
+
+function SidebarBillingCard() {
+  const [loading, setLoading] = useState(false);
+  const { data: health } = useQuery({
+    queryKey: queryKeys.health,
+    queryFn: () => healthApi.get(),
+    retry: false,
+  });
+  const isSaasMode = (health as Record<string, unknown>)?.saasMode === true;
+
+  const { data: status } = useQuery({
+    queryKey: ["billing", "status"],
+    queryFn: () => billingApi.getStatus(),
+    enabled: isSaasMode,
+    retry: false,
+    staleTime: 30_000,
+  });
+
+  if (!isSaasMode || !status) return null;
+
+  if (status.active) {
+    return (
+      <div className="mt-auto pt-2">
+        <div className="rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5">
+          <div className="flex items-center gap-2 text-xs">
+            <Zap className="h-3 w-3 text-green-500 shrink-0" />
+            <span className="text-muted-foreground">Agents active</span>
+          </div>
+          <button
+            className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground/70 hover:text-foreground transition-colors"
+            onClick={async () => {
+              setLoading(true);
+              try {
+                const result = await billingApi.createPortal();
+                if (result.url) window.location.href = result.url;
+              } catch { setLoading(false); }
+            }}
+            disabled={loading}
+          >
+            <CreditCard className="h-3 w-3" />
+            {loading ? "Loading..." : "Manage billing"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-auto pt-2">
+      <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 px-3 py-2.5">
+        <div className="flex items-center gap-2 text-xs font-medium">
+          <Zap className="h-3 w-3 text-yellow-500 shrink-0" />
+          <span>Agents paused</span>
+        </div>
+        <p className="text-[11px] text-muted-foreground mt-1">
+          Subscribe to activate your agents.
+        </p>
+        <button
+          className="mt-2 w-full rounded-md bg-primary px-2.5 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+          onClick={async () => {
+            setLoading(true);
+            try {
+              const result = await billingApi.createCheckout();
+              if (result.url) window.location.href = result.url;
+            } catch { setLoading(false); }
+          }}
+          disabled={loading}
+        >
+          {loading ? "Redirecting..." : "Subscribe — $100/mo"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function Sidebar() {
   const { openNewIssue } = useDialog();
@@ -115,6 +194,8 @@ export function Sidebar() {
           itemClassName="rounded-lg border border-border p-3"
           missingBehavior="placeholder"
         />
+
+        <SidebarBillingCard />
       </nav>
     </aside>
   );
