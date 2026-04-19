@@ -532,6 +532,10 @@ export async function startServer(): Promise<StartedServer> {
     bindHost: config.host,
     authReady,
     companyDeletionEnabled: config.companyDeletionEnabled,
+    stripeSecretKey: config.stripeSecretKey,
+    stripeWebhookSecret: config.stripeWebhookSecret,
+    stripePriceId: config.stripePriceId,
+    publicUrl: process.env.PAPERCLIP_PUBLIC_URL,
     betterAuthHandler,
     resolveSession,
   });

@@ -33,6 +33,7 @@ import { assetRoutes } from "./routes/assets.js";
 import { accessRoutes } from "./routes/access.js";
 import { pluginRoutes } from "./routes/plugins.js";
 import { adapterRoutes } from "./routes/adapters.js";
+import { billingRoutes } from "./routes/billing.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
 import { applyUiBranding } from "./ui-branding.js";
 import { logger } from "./middleware/logger.js";
@@ -121,6 +122,10 @@ export async function createApp(
     instanceId?: string;
     hostVersion?: string;
     localPluginDir?: string;
+    stripeSecretKey?: string;
+    stripeWebhookSecret?: string;
+    stripePriceId?: string;
+    publicUrl?: string;
     betterAuthHandler?: express.RequestHandler;
     resolveSession?: (req: ExpressRequest) => Promise<BetterAuthSessionResult | null>;
   },
@@ -259,6 +264,12 @@ export async function createApp(
     ),
   );
   api.use(adapterRoutes());
+  api.use("/billing", billingRoutes(db, {
+    stripeSecretKey: opts.stripeSecretKey,
+    stripeWebhookSecret: opts.stripeWebhookSecret,
+    stripePriceId: opts.stripePriceId,
+    publicUrl: opts.publicUrl,
+  }));
   api.use(
     accessRoutes(db, {
       deploymentMode: opts.deploymentMode,

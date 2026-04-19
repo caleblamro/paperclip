@@ -12,7 +12,8 @@ import {
   updateCompanyBrandingSchema,
   updateCompanySchema,
 } from "@paperclipai/shared";
-import { badRequest, forbidden } from "../errors.js";
+import { badRequest, forbidden, unauthorized } from "../errors.js";
+import { billingService } from "../services/billing.js";
 import { validate } from "../middleware/validate.js";
 import {
   accessService,
@@ -268,6 +269,12 @@ export function companyRoutes(db: Db, storage?: StorageService) {
     assertBoard(req);
     if (!(req.actor.source === "local_implicit" || req.actor.isInstanceAdmin)) {
       throw forbidden("Instance admin required");
+    }
+    if (process.env.STRIPE_SECRET_KEY) {
+      const billing = billingService(db, process.env.STRIPE_SECRET_KEY);
+      if (!(await billing.hasActiveSubscription(req.actor.userId ?? ""))) {
+        throw forbidden("Active subscription required to create an organization");
+      }
     }
     const company = await svc.create(req.body);
     await access.ensureMembership(company.id, "user", req.actor.userId ?? "local-board", "owner", "active");

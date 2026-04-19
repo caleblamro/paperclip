@@ -5,6 +5,8 @@ import { useLocation, useNavigate, useParams } from "@/lib/router";
 import { useDialog } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
 import { companiesApi } from "../api/companies";
+import { billingApi } from "../api/billing";
+import { SubscriptionGate } from "./SubscriptionGate";
 import { goalsApi } from "../api/goals";
 import { agentsApi } from "../api/agents";
 import { issuesApi } from "../api/issues";
@@ -100,6 +102,15 @@ export function OnboardingWizard() {
   const [error, setError] = useState<string | null>(null);
   const [modelOpen, setModelOpen] = useState(false);
   const [modelSearch, setModelSearch] = useState("");
+
+  // Billing subscription check
+  const { data: billingStatus } = useQuery({
+    queryKey: ["billing", "status"],
+    queryFn: () => billingApi.getStatus(),
+    retry: false,
+    staleTime: 30_000,
+  });
+  const needsSubscription = billingStatus !== undefined && !billingStatus.active;
 
   // Step 1
   const [companyName, setCompanyName] = useState("");
@@ -664,7 +675,10 @@ export function OnboardingWizard() {
               </div>
 
               {/* Step content */}
-              {step === 1 && (
+              {step === 1 && needsSubscription && (
+                <SubscriptionGate onError={setError} />
+              )}
+              {step === 1 && !needsSubscription && (
                 <div className="space-y-5">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="bg-muted/50 p-2">
@@ -1203,7 +1217,7 @@ export function OnboardingWizard() {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {step === 1 && (
+                  {step === 1 && !needsSubscription && (
                     <Button
                       size="sm"
                       disabled={!companyName.trim() || loading}

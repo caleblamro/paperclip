@@ -86,6 +86,9 @@ export interface Config {
   heartbeatSchedulerIntervalMs: number;
   companyDeletionEnabled: boolean;
   telemetryEnabled: boolean;
+  stripeSecretKey: string | undefined;
+  stripeWebhookSecret: string | undefined;
+  stripePriceId: string | undefined;
 }
 
 function detectTailnetBindHost(): string | undefined {
@@ -331,5 +334,8 @@ export function loadConfig(): Config {
     heartbeatSchedulerIntervalMs: Math.max(10000, Number(process.env.HEARTBEAT_SCHEDULER_INTERVAL_MS) || 30000),
     companyDeletionEnabled,
     telemetryEnabled: fileConfig?.telemetry?.enabled ?? true,
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY?.trim() || undefined,
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET?.trim() || undefined,
+    stripePriceId: process.env.STRIPE_PRICE_ID?.trim() || undefined,
   };
 }
