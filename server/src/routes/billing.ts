@@ -94,7 +94,7 @@ export function billingRoutes(db: Db, opts: BillingRouteOpts) {
       }
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as Record<string, unknown>;
+        const subscription = event.data.object as unknown as Record<string, unknown>;
         const customerId = typeof subscription.customer === "string"
           ? subscription.customer
           : (subscription.customer as { id: string }).id;
@@ -108,7 +108,7 @@ export function billingRoutes(db: Db, opts: BillingRouteOpts) {
         break;
       }
       case "invoice.payment_failed": {
-        const invoice = event.data.object as Record<string, unknown>;
+        const invoice = event.data.object as unknown as Record<string, unknown>;
         const customerId = typeof invoice.customer === "string"
           ? invoice.customer
           : ((invoice.customer as { id?: string })?.id ?? null);
