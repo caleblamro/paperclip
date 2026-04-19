@@ -18,6 +18,7 @@ import { useTheme } from "../context/ThemeContext";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "../lib/utils";
+import { healthApi } from "@/api/health";
 
 const PROFILE_SETTINGS_PATH = "/instance/settings/profile";
 const DOCS_URL = "https://docs.paperclip.ing/";
@@ -99,6 +100,13 @@ export function SidebarAccountMenu({
     retry: false,
   });
 
+  const { data: health } = useQuery({
+    queryKey: queryKeys.health,
+    queryFn: () => healthApi.get(),
+    retry: false,
+  });
+  const isSaasMode = (health as Record<string, unknown>)?.saasMode === true;
+
   const signOutMutation = useMutation({
     mutationFn: () => authApi.signOut(),
     onSuccess: async () => {
@@ -158,7 +166,7 @@ export function SidebarAccountMenu({
                 </div>
                 <p className="truncate text-sm text-muted-foreground">{secondaryLabel}</p>
                 {version ? (
-                  <p className="mt-1 text-xs text-muted-foreground">Paperclip v{version}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{isSaasMode ? "Conductor" : `Paperclip v${version}`}</p>
                 ) : null}
               </div>
             </div>
@@ -171,21 +179,25 @@ export function SidebarAccountMenu({
                 href={PROFILE_SETTINGS_PATH}
                 onClick={closeNavigationChrome}
               />
-              <MenuAction
-                label="Instance settings"
-                description="Jump back to the last settings page you opened."
-                icon={Settings}
-                href={instanceSettingsTarget}
-                onClick={closeNavigationChrome}
-              />
-              <MenuAction
-                label="Documentation"
-                description="Open Paperclip docs in a new tab."
-                icon={BookOpen}
-                href={DOCS_URL}
-                external
-                onClick={() => setOpen(false)}
-              />
+              {!isSaasMode && (
+                <MenuAction
+                  label="Instance settings"
+                  description="Jump back to the last settings page you opened."
+                  icon={Settings}
+                  href={instanceSettingsTarget}
+                  onClick={closeNavigationChrome}
+                />
+              )}
+              {!isSaasMode && (
+                <MenuAction
+                  label="Documentation"
+                  description="Open Paperclip docs in a new tab."
+                  icon={BookOpen}
+                  href={DOCS_URL}
+                  external
+                  onClick={() => setOpen(false)}
+                />
+              )}
               <MenuAction
                 label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
                 description="Toggle the app appearance."
