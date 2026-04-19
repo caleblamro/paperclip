@@ -124,6 +124,7 @@ export function healthRoutes(
       authReady: opts.authReady,
       bootstrapStatus,
       bootstrapInviteActive,
+      saasMode: process.env.CONDUCTOR_SAAS_MODE === "true",
       features: {
         companyDeletionEnabled: opts.companyDeletionEnabled,
       },
