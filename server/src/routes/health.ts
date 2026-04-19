@@ -112,6 +112,7 @@ export function healthRoutes(
         bootstrapStatus,
         bootstrapInviteActive,
         saasMode: process.env.CONDUCTOR_SAAS_MODE === "true",
+        billingEnabled: process.env.CONDUCTOR_BILLING_ENABLED !== "false",
       });
       return;
     }
@@ -125,6 +126,7 @@ export function healthRoutes(
       bootstrapStatus,
       bootstrapInviteActive,
       saasMode: process.env.CONDUCTOR_SAAS_MODE === "true",
+      billingEnabled: process.env.CONDUCTOR_BILLING_ENABLED !== "false",
       features: {
         companyDeletionEnabled: opts.companyDeletionEnabled,
       },

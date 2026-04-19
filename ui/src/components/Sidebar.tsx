@@ -38,17 +38,19 @@ function SidebarBillingCard() {
     queryFn: () => healthApi.get(),
     retry: false,
   });
-  const isSaasMode = (health as Record<string, unknown>)?.saasMode === true;
+  const healthData = health as Record<string, unknown> | undefined;
+  const isSaasMode = healthData?.saasMode === true;
+  const billingEnabled = healthData?.billingEnabled !== false;
 
   const { data: status } = useQuery({
     queryKey: ["billing", "status"],
     queryFn: () => billingApi.getStatus(),
-    enabled: isSaasMode,
+    enabled: isSaasMode && billingEnabled,
     retry: false,
     staleTime: 30_000,
   });
 
-  if (!isSaasMode || !status) return null;
+  if (!isSaasMode || !billingEnabled || !status) return null;
 
   if (status.active) {
     return (
@@ -98,7 +100,7 @@ function SidebarBillingCard() {
           }}
           disabled={loading}
         >
-          {loading ? "Redirecting..." : "Subscribe — $100/mo"}
+          {loading ? "Redirecting..." : "Subscribe — $20/mo"}
         </button>
       </div>
     </div>

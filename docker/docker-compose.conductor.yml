@@ -38,6 +38,7 @@ services:
       RESEND_API_KEY: "${RESEND_API_KEY:-}"
       EMAIL_FROM: "${EMAIL_FROM:-Conductor <noreply@conductor.app>}"
       CONDUCTOR_SAAS_MODE: "true"
+      CONDUCTOR_BILLING_ENABLED: "${CONDUCTOR_BILLING_ENABLED:-true}"
     volumes:
       - conductor-data:/conductor
     depends_on:

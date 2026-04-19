@@ -57,7 +57,7 @@ export function SubscriptionBanner() {
         <div>
           <p className="text-sm font-medium">Agents are paused</p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Subscribe for <span className="font-semibold">$100/month</span> to activate your agents.
+            Subscribe for <span className="font-semibold">$20/month</span> to activate your agents.
             The subscription owner manages billing — invited team members can configure and run agents freely.
           </p>
         </div>

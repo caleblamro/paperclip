@@ -404,7 +404,7 @@ export function Layout() {
                 />
               ) : (
                 <>
-                  {(health as Record<string, unknown>)?.saasMode && <SubscriptionBanner />}
+                  {(health as Record<string, unknown>)?.saasMode && (health as Record<string, unknown>)?.billingEnabled !== false && <SubscriptionBanner />}
                   <Outlet />
                 </>
               )}

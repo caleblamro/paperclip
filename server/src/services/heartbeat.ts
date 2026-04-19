@@ -4456,7 +4456,7 @@ export function heartbeatService(db: Db) {
     const agent = await getAgent(agentId);
     if (!agent) throw notFound("Agent not found");
 
-    if (process.env.CONDUCTOR_SAAS_MODE === "true" && process.env.STRIPE_SECRET_KEY) {
+    if (process.env.CONDUCTOR_SAAS_MODE === "true" && process.env.CONDUCTOR_BILLING_ENABLED !== "false" && process.env.STRIPE_SECRET_KEY) {
       const billing = billingService(db, process.env.STRIPE_SECRET_KEY);
       const ownerRow = await db
         .select({ principalId: companyMemberships.principalId })

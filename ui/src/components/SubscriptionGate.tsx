@@ -29,7 +29,7 @@ export function SubscriptionGate({ onError }: SubscriptionGateProps) {
         <h3 className="text-lg font-semibold">Subscription Required</h3>
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
           A subscription is required to create an organization. Subscribe for
-          <span className="font-semibold text-foreground"> $100/month</span> to
+          <span className="font-semibold text-foreground"> $20/month</span> to
           get started.
         </p>
         <Button onClick={handleSubscribe} disabled={loading} className="mt-2">
