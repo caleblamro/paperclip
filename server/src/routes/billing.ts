@@ -94,25 +94,30 @@ export function billingRoutes(db: Db, opts: BillingRouteOpts) {
       }
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const subscription = event.data.object;
-        const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
+        const subscription = event.data.object as Record<string, unknown>;
+        const customerId = typeof subscription.customer === "string"
+          ? subscription.customer
+          : (subscription.customer as { id: string }).id;
+        const periodEnd = subscription.current_period_end as number | undefined;
         await billing.upsertSubscriptionByCustomerId({
           stripeCustomerId: customerId,
-          stripeSubscriptionId: subscription.id,
-          status: subscription.status,
-          currentPeriodEnd: subscription.current_period_end
-            ? new Date(subscription.current_period_end * 1000)
-            : null,
+          stripeSubscriptionId: subscription.id as string,
+          status: subscription.status as string,
+          currentPeriodEnd: periodEnd ? new Date(periodEnd * 1000) : null,
         });
         break;
       }
       case "invoice.payment_failed": {
-        const invoice = event.data.object;
-        const customerId = typeof invoice.customer === "string" ? invoice.customer : (invoice.customer?.id ?? null);
+        const invoice = event.data.object as Record<string, unknown>;
+        const customerId = typeof invoice.customer === "string"
+          ? invoice.customer
+          : ((invoice.customer as { id?: string })?.id ?? null);
+        const sub = invoice.subscription;
+        const subId = typeof sub === "string" ? sub : ((sub as { id?: string })?.id ?? "");
         if (customerId) {
           await billing.upsertSubscriptionByCustomerId({
             stripeCustomerId: customerId,
-            stripeSubscriptionId: typeof invoice.subscription === "string" ? invoice.subscription : (invoice.subscription?.id ?? ""),
+            stripeSubscriptionId: subId,
             status: "past_due",
             currentPeriodEnd: null,
           });
