@@ -73,6 +73,10 @@ export function accessService(db: Db) {
   ): Promise<boolean> {
     if (!userId) return false;
     if (await isInstanceAdmin(userId)) return true;
+    if (process.env.CONDUCTOR_SAAS_MODE === "true") {
+      const membership = await getMembership(companyId, "user", userId);
+      if (membership?.membershipRole === "owner") return true;
+    }
     return hasPermission(companyId, "user", userId, permissionKey);
   }
 
