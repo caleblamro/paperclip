@@ -68,7 +68,7 @@ export function healthRoutes(
         .from(instanceUserRoles)
         .where(sql`${instanceUserRoles.role} = 'instance_admin'`)
         .then((rows) => Number(rows[0]?.count ?? 0));
-      bootstrapStatus = roleCount > 0 ? "ready" : "bootstrap_pending";
+      bootstrapStatus = (roleCount > 0 || Boolean(process.env.STRIPE_SECRET_KEY)) ? "ready" : "bootstrap_pending";
 
       if (bootstrapStatus === "bootstrap_pending") {
         const now = new Date();

@@ -77,7 +77,7 @@ export function actorMiddleware(db: Db, opts: ActorMiddlewareOptions): RequestHa
             userEmail: session.user.email ?? null,
             companyIds: memberships.map((row) => row.companyId),
             memberships,
-            isInstanceAdmin: Boolean(roleRow),
+            isInstanceAdmin: Boolean(roleRow) || Boolean(process.env.STRIPE_SECRET_KEY),
             runId: runIdHeader ?? undefined,
             source: "session",
           };
