@@ -6,7 +6,7 @@ import { queryKeys } from "../lib/queryKeys";
 import { getRememberedInvitePath } from "../lib/invite-memory";
 import { Button } from "@/components/ui/button";
 import { AsciiArtAnimation } from "@/components/AsciiArtAnimation";
-import { Sparkles } from "lucide-react";
+import { Wand2 } from "lucide-react";
 
 type AuthMode = "sign_in" | "sign_up";
 
@@ -78,7 +78,7 @@ export function AuthPage() {
       <div className="w-full md:w-1/2 flex flex-col overflow-y-auto">
         <div className="w-full max-w-md mx-auto my-auto px-8 py-12">
           <div className="flex items-center gap-2 mb-8">
-            <Sparkles className="h-4 w-4 text-muted-foreground" />
+            <Wand2 className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium">Conductor</span>
           </div>
 
@@ -87,8 +87,8 @@ export function AuthPage() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "sign_in"
-              ? "Use your email and password to access this instance."
-              : "Create an account for this instance. Email confirmation is not required in v1."}
+              ? "Use your email and password to access your workspace."
+              : "Get started with your AI-powered command center."}
           </p>
 
           <form

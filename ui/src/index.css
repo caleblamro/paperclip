@@ -114,6 +114,84 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/* ── Conductor accent themes ── */
+/* Applied as data-accent on <html>, works with both light and dark */
+
+[data-accent="indigo"].dark {
+  --primary: oklch(0.7 0.15 270);
+  --primary-foreground: oklch(0.15 0.02 270);
+  --ring: oklch(0.6 0.15 270);
+  --sidebar-primary: oklch(0.6 0.18 270);
+  --chart-1: oklch(0.6 0.18 270);
+}
+[data-accent="indigo"]:not(.dark) {
+  --primary: oklch(0.45 0.2 270);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.5 0.2 270);
+  --sidebar-primary: oklch(0.45 0.2 270);
+  --chart-1: oklch(0.45 0.2 270);
+}
+
+[data-accent="emerald"].dark {
+  --primary: oklch(0.72 0.17 160);
+  --primary-foreground: oklch(0.15 0.03 160);
+  --ring: oklch(0.6 0.17 160);
+  --sidebar-primary: oklch(0.6 0.17 160);
+  --chart-1: oklch(0.6 0.17 160);
+}
+[data-accent="emerald"]:not(.dark) {
+  --primary: oklch(0.5 0.18 160);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.5 0.18 160);
+  --sidebar-primary: oklch(0.5 0.18 160);
+  --chart-1: oklch(0.5 0.18 160);
+}
+
+[data-accent="amber"].dark {
+  --primary: oklch(0.8 0.16 85);
+  --primary-foreground: oklch(0.18 0.04 85);
+  --ring: oklch(0.7 0.16 85);
+  --sidebar-primary: oklch(0.7 0.16 85);
+  --chart-1: oklch(0.7 0.16 85);
+}
+[data-accent="amber"]:not(.dark) {
+  --primary: oklch(0.55 0.16 85);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.55 0.16 85);
+  --sidebar-primary: oklch(0.55 0.16 85);
+  --chart-1: oklch(0.55 0.16 85);
+}
+
+[data-accent="rose"].dark {
+  --primary: oklch(0.7 0.18 15);
+  --primary-foreground: oklch(0.15 0.03 15);
+  --ring: oklch(0.6 0.18 15);
+  --sidebar-primary: oklch(0.6 0.18 15);
+  --chart-1: oklch(0.6 0.18 15);
+}
+[data-accent="rose"]:not(.dark) {
+  --primary: oklch(0.55 0.2 15);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.55 0.2 15);
+  --sidebar-primary: oklch(0.55 0.2 15);
+  --chart-1: oklch(0.55 0.2 15);
+}
+
+[data-accent="cyan"].dark {
+  --primary: oklch(0.75 0.14 200);
+  --primary-foreground: oklch(0.15 0.02 200);
+  --ring: oklch(0.65 0.14 200);
+  --sidebar-primary: oklch(0.65 0.14 200);
+  --chart-1: oklch(0.65 0.14 200);
+}
+[data-accent="cyan"]:not(.dark) {
+  --primary: oklch(0.5 0.15 200);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.5 0.15 200);
+  --sidebar-primary: oklch(0.5 0.15 200);
+  --chart-1: oklch(0.5 0.15 200);
+}
+
 @layer base {
   * {
     @apply border-border;

@@ -14,7 +14,8 @@ import { Link } from "@/lib/router";
 import { authApi } from "@/api/auth";
 import { queryKeys } from "@/lib/queryKeys";
 import { useSidebar } from "../context/SidebarContext";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme, ACCENT_OPTIONS } from "../context/ThemeContext";
+import { Palette } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "../lib/utils";
@@ -93,7 +94,7 @@ export function SidebarAccountMenu({
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
   const { isMobile, setSidebarOpen } = useSidebar();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, accent, setAccent, toggleTheme } = useTheme();
   const { data: session } = useQuery({
     queryKey: queryKeys.auth.session,
     queryFn: () => authApi.getSession(),
@@ -207,6 +208,30 @@ export function SidebarAccountMenu({
                   setOpen(false);
                 }}
               />
+              <div className="px-3 py-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <Palette className="size-3.5 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">Accent color</span>
+                </div>
+                <div className="flex gap-1.5">
+                  {ACCENT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      title={opt.label}
+                      className={cn(
+                        "size-6 rounded-full border-2 transition-all",
+                        accent === opt.value
+                          ? "border-foreground scale-110"
+                          : "border-transparent hover:border-muted-foreground/50",
+                      )}
+                      style={{ backgroundColor: opt.color }}
+                      onClick={() => setAccent(opt.value)}
+                    />
+                  ))}
+                </div>
+              </div>
+
               {deploymentMode === "authenticated" ? (
                 <button
                   type="button"

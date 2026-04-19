@@ -21,15 +21,20 @@
     <link rel="manifest" href="/site.webmanifest" />
     <script>
       (() => {
-        const key = "paperclip.theme";
+        const key = "conductor.theme";
+        const accentKey = "conductor.accent";
         const darkThemeColor = "#18181b";
         const lightThemeColor = "#ffffff";
         try {
-          const stored = window.localStorage.getItem(key);
+          const stored = window.localStorage.getItem(key) || window.localStorage.getItem("paperclip.theme");
           const theme = stored === "light" || stored === "dark" ? stored : "dark";
           const isDark = theme === "dark";
           document.documentElement.classList.toggle("dark", isDark);
           document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+          const accent = window.localStorage.getItem(accentKey);
+          if (accent && accent !== "default") {
+            document.documentElement.setAttribute("data-accent", accent);
+          }
           const themeColorMeta = document.querySelector('meta[name="theme-color"]');
           if (themeColorMeta) {
             themeColorMeta.setAttribute("content", isDark ? darkThemeColor : lightThemeColor);
