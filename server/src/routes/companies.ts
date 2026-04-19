@@ -267,14 +267,13 @@ export function companyRoutes(db: Db, storage?: StorageService) {
 
   router.post("/", validate(createCompanySchema), async (req, res) => {
     assertBoard(req);
-    if (!(req.actor.source === "local_implicit" || req.actor.isInstanceAdmin)) {
-      throw forbidden("Instance admin required");
-    }
     if (process.env.STRIPE_SECRET_KEY) {
       const billing = billingService(db, process.env.STRIPE_SECRET_KEY);
       if (!(await billing.hasActiveSubscription(req.actor.userId ?? ""))) {
         throw forbidden("Active subscription required to create an organization");
       }
+    } else if (!(req.actor.source === "local_implicit" || req.actor.isInstanceAdmin)) {
+      throw forbidden("Instance admin required");
     }
     const company = await svc.create(req.body);
     await access.ensureMembership(company.id, "user", req.actor.userId ?? "local-board", "owner", "active");
