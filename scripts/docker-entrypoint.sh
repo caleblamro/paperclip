@@ -23,5 +23,9 @@ if [ "$(id -g node)" -ne "$PGID" ]; then
 fi
 
 chown -R node:node /paperclip
+if [ -n "$PAPERCLIP_HOME" ] && [ "$PAPERCLIP_HOME" != "/paperclip" ]; then
+    mkdir -p "$PAPERCLIP_HOME"
+    chown -R node:node "$PAPERCLIP_HOME"
+fi
 
 exec gosu node "$@"
