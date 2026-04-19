@@ -35,6 +35,8 @@ services:
       STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET:-}"
       STRIPE_PRICE_ID: "${STRIPE_PRICE_ID:-}"
       ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      RESEND_API_KEY: "${RESEND_API_KEY:-}"
+      EMAIL_FROM: "${EMAIL_FROM:-Conductor <noreply@conductor.app>}"
       CONDUCTOR_SAAS_MODE: "true"
     volumes:
       - conductor-data:/conductor

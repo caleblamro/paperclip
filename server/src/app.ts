@@ -34,6 +34,7 @@ import { accessRoutes } from "./routes/access.js";
 import { pluginRoutes } from "./routes/plugins.js";
 import { adapterRoutes } from "./routes/adapters.js";
 import { billingRoutes } from "./routes/billing.js";
+import { sendWelcomeEmail } from "./services/email.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
 import { applyUiBranding } from "./ui-branding.js";
 import { logger } from "./middleware/logger.js";
@@ -163,6 +164,22 @@ export async function createApp(
   );
   app.use("/api/auth", authRoutes(db));
   if (opts.betterAuthHandler) {
+    app.post("/api/auth/sign-up/email", (req, res, next) => {
+      const originalJson = res.json.bind(res);
+      res.json = function (body: unknown) {
+        if (res.statusCode >= 200 && res.statusCode < 300 && body && typeof body === "object") {
+          const user = (body as Record<string, unknown>).user as Record<string, unknown> | undefined;
+          if (user?.email) {
+            void sendWelcomeEmail(
+              user.email as string,
+              (user.name as string) || "",
+            );
+          }
+        }
+        return originalJson(body);
+      };
+      next();
+    });
     app.all("/api/auth/{*authPath}", opts.betterAuthHandler);
   }
   app.use(llmRoutes(db));
